@@ -1,0 +1,47 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ERC1155</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+</head>
+<body>
+    <div>
+        <p>Wallet address - <span id="wallet-address"></span></p>
+        <label>Token ID</label><input type="number" name="tokenId">
+        <br>
+        <label>Amount</label><input type="number" name="Amount">
+        <br>
+        <br>
+      <button id= "mint">Mint an NFT</button>
+    </div>
+    <script type="text/javascript">
+    // Connect metamask to our site. Get the user's address
+    var account = null;
+    var contract = null; 
+      
+     // Input smart contract ABI
+    const ABI = [];
+    const ADDRESS = "0xC38B291e99cD3CE588C09b1Dc4eB530A62115258";
+    (async () => {
+        if (window.ethereum) {
+            await window.ethereum.send('eth_requestAccounts');
+            window.web3 = new Web3(window.ethereum);
+
+            var accounts = await web3.eth.getAccounts();
+            account = accounts[0];
+            document.getElementById('wallet-address').textContent = account;
+
+            contract = new web3.eth.Contract(ABI, ADDRESS); 
+
+            document.getElementById('mint').onclick = async () => {
+                var tokenId = Number(document.querySelector("[name=tokenId]").value);
+                var amount = Number(document.querySelector("[name=amount]"));
+                var mintRate = Number(await contract.methods.mintRate().call());
+                var totalAmount = mintRate * amount;
+                contract.methods.mint(tokenId, amount).send({ from: account, value: String(totalAmount)});
+            }
+        }
+    })();
+    </script>
+</body>
+</html>
